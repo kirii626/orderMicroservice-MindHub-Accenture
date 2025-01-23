@@ -71,4 +71,21 @@ public class ExceptionHandlers {
         }
         return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred: " + ex.getMessage());
     }
+
+    @ExceptionHandler(InsufficientStockExc.class)
+    public ResponseEntity<Map<String, Object>> handleInsufficientStockException(InsufficientStockExc ex) {
+        Map<String, Object> errorBody = new HashMap<>();
+        errorBody.put("timestamp", LocalDateTime.now());
+        errorBody.put("status", HttpStatus.CONFLICT.value());
+        errorBody.put("error", HttpStatus.CONFLICT.getReasonPhrase());
+        errorBody.put("message", ex.getMessage());
+
+        // Agregar información adicional al campo `data`
+        Map<String, Object> additionalData = new HashMap<>();
+        additionalData.put("productId", ex.getProductId());
+        additionalData.put("requestedQuantity", ex.getRequestedQuantity());
+        errorBody.put("data", additionalData);
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorBody);
+    }
 }
