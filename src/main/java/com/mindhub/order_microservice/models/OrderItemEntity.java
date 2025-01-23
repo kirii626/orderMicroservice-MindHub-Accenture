@@ -52,4 +52,14 @@ public class OrderItemEntity {
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
+
+    @Override
+    public String toString() {
+        return "OrderItemEntity{" +
+                "id=" + id +
+                ", order=" + order +
+                ", productId=" + productId +
+                ", quantity=" + quantity +
+                '}';
+    }
 }

@@ -1,31 +1,28 @@
-package com.mindhub.order_microservice.models.dtos;
+package com.mindhub.order_microservice.dtos;
 
-import com.mindhub.order_microservice.models.OrderEntity;
 import com.mindhub.order_microservice.models.enums.OrderStatus;
-import jakarta.validation.constraints.NotBlank;
+
+import java.util.List;
 
 public class OrderDtoOutput {
 
     private Long id;
 
-    private OrderEntity order;
-
     private Long userId;
 
     private OrderStatus orderStatus;
 
-    public OrderDtoOutput(OrderEntity order, Long userId, OrderStatus orderStatus) {
-        this.order = order;
+    private List<OrderItemDtoOutput> orderItems;
+
+    public OrderDtoOutput(Long id, Long userId, OrderStatus orderStatus, List<OrderItemDtoOutput> orderItems) {
+        this.id = id;
         this.userId = userId;
         this.orderStatus = orderStatus;
+        this.orderItems = orderItems;
     }
 
     public Long getId() {
         return id;
-    }
-
-    public OrderEntity getOrder() {
-        return order;
     }
 
     public Long getUserId() {
@@ -34,5 +31,9 @@ public class OrderDtoOutput {
 
     public OrderStatus getOrderStatus() {
         return orderStatus;
+    }
+
+    public List<OrderItemDtoOutput> getOrderItems() {
+        return orderItems;
     }
 }

@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.mindhub</groupId>
-	<artifactId>order-microservice</artifactId>
+	<artifactId>orderId-microservice</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>order-microservice</name>
+	<name>orderId-microservice</name>
 	<description>Microservice for handling user</description>
 	<url/>
 	<licenses>

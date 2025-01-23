@@ -1,4 +1,4 @@
-package com.mindhub.order_microservice.models.dtos;
+package com.mindhub.order_microservice.dtos;
 
 import com.mindhub.order_microservice.models.OrderEntity;
 
@@ -6,14 +6,15 @@ public class OrderItemDtoOutput {
 
     private Long id;
 
-    private OrderEntity order;
+    private Long orderId;
 
     private Long productId;
 
     private Integer quantity;
 
-    public OrderItemDtoOutput(OrderEntity order, Long productId, Integer quantity) {
-        this.order = order;
+    public OrderItemDtoOutput(Long id, Long orderId, Long productId, Integer quantity) {
+        this.id = id;
+        this.orderId = orderId;
         this.productId = productId;
         this.quantity = quantity;
     }
@@ -22,8 +23,8 @@ public class OrderItemDtoOutput {
         return id;
     }
 
-    public OrderEntity getOrder() {
-        return order;
+    public Long getOrderId() {
+        return orderId;
     }
 
     public Long getProductId() {

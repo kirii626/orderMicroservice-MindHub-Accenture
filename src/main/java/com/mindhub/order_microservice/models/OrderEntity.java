@@ -13,20 +13,27 @@ public class OrderEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private Long userId;
 
-    @OneToMany
+    @Column(nullable = false)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<OrderItemEntity> orderItems = new HashSet<>();
 
-    private OrderStatus orderStatus;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private OrderStatus orderStatus = OrderStatus.PENDING;
 
     public OrderEntity() {
     }
 
-    public OrderEntity(Long userId, Set<OrderItemEntity> orderItems, OrderStatus orderStatus) {
+    public OrderEntity(Long userId, OrderStatus orderStatus) {
         this.userId = userId;
-        this.orderItems = orderItems;
         this.orderStatus = orderStatus;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public Long getUserId() {
@@ -51,5 +58,20 @@ public class OrderEntity {
 
     public void setOrderStatus(OrderStatus orderStatus) {
         this.orderStatus = orderStatus;
+    }
+
+    public void addOrderItem(OrderItemEntity item) {
+        item.setOrder(this); // Bidirectional relationship
+        this.orderItems.add(item);
+    }
+
+    @Override
+    public String toString() {
+        return "OrderEntity{" +
+                "id=" + id +
+                ", userId=" + userId +
+                ", orderItems=" + orderItems +
+                ", orderStatus=" + orderStatus +
+                '}';
     }
 }
