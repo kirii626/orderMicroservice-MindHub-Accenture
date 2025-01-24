@@ -6,6 +6,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -87,5 +88,58 @@ public class ExceptionHandlers {
         errorBody.put("data", additionalData);
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorBody);
+    }
+
+    @ExceptionHandler(HttpClientErrorException.class)
+    public ResponseEntity<Map<String, Object>> handleHttpClientErrorException(HttpClientErrorException ex) {
+        String responseBody = ex.getResponseBodyAsString();
+        System.out.println("Response body: " + responseBody); // Log para verificar el contenido
+
+        // Aquí asegúrate de que el cuerpo contiene "Product not found with ID" o "User not found for email"
+        if (responseBody.contains("Product not found with ID")) {
+            String productId = extractProductIdFromMessage(responseBody);
+            return buildErrorResponse(HttpStatus.NOT_FOUND, "The product with ID " + productId + " does not exist.");
+        }
+
+        if (responseBody.contains("User not found for email")) {
+            String email = extractEmailFromMessage(responseBody);
+            return buildErrorResponse(HttpStatus.NOT_FOUND, "The user with email " + email + " does not exist.");
+        }
+
+        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error occurred.");
+    }
+
+
+    private String extractProductIdFromMessage(String responseBody) {
+        String marker = "Product not found with ID: ";
+        int startIndex = responseBody.indexOf(marker) + marker.length();
+        if (startIndex < marker.length()) {
+            return "unknown";
+        }
+
+        int endIndex = responseBody.indexOf(",", startIndex);
+        if (endIndex == -1) {
+            endIndex = responseBody.length();
+        }
+
+        // Extrae el ID y elimina comillas adicionales
+        String extractedId = responseBody.substring(startIndex, endIndex).trim();
+        return extractedId.replace("\"", "");
+    }
+
+    private String extractEmailFromMessage(String responseBody) {
+        String marker = "User not found for email: ";
+        int startIndex = responseBody.indexOf(marker) + marker.length();
+        if (startIndex < marker.length()) {
+            return "unknown";
+        }
+
+        int endIndex = responseBody.indexOf(",", startIndex);
+        if (endIndex == -1) {
+            endIndex = responseBody.length();
+        }
+
+        String extractedEmail = responseBody.substring(startIndex, endIndex).trim();
+        return extractedEmail.replace("\"", "");// Elimina comillas si están presentes
     }
 }
