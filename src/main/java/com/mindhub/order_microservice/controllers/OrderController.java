@@ -7,7 +7,6 @@ import com.mindhub.order_microservice.services.OrderService;
 import com.mindhub.order_microservice.utils.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +20,9 @@ public class OrderController {
     private OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<OrderDtoOutput>> createOrder(@Valid @RequestBody NewOrderDto newOrderDto) {
+    public ResponseEntity<ApiResponse<OrderDtoOutput>> createOrder(
+            @Valid
+            @RequestBody NewOrderDto newOrderDto) {
         return orderService.createOrder(newOrderDto);
     }
 
@@ -37,5 +38,4 @@ public class OrderController {
             @RequestParam("status") OrderStatus status) {
         return orderService.updateOrderStatus(id, status);
     }
-
 }

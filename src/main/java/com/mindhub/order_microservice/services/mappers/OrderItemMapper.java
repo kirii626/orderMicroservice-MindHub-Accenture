@@ -16,7 +16,6 @@ public class OrderItemMapper {
         OrderItemEntity orderItemEntity = new OrderItemEntity();
         orderItemEntity.setProductId(orderItemDtoInput.getProductId());
         orderItemEntity.setQuantity(orderItemDtoInput.getQuantity());
-
         orderItemEntity.setOrder(orderEntity);
 
         return orderItemEntity;

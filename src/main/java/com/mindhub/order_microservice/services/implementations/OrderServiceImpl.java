@@ -49,22 +49,22 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public ResponseEntity<ApiResponse<OrderDtoOutput>> createOrder(NewOrderDto newOrderDto) {
-        // Validar que el usuario exista
+        // Validate user exists
         Long userId = validOrderFields.validateUser(newOrderDto.getEmail());
 
-        // Validar que los productos tienen stock suficiente
+        // Validate stock products
         validOrderFields.validateProductsStock(newOrderDto.getOrderItems());
 
-        // Crear la entidad OrderEntity y asociar los OrderItems
+        // Create orderEntity and associate orderItems
         OrderEntity orderEntity = createOrderEntity(userId, newOrderDto);
 
-        // Reducir el stock de los productos
+        // Reduce stock products
         reduceProductsStock(newOrderDto.getOrderItems());
 
-        // Mapear a DTO de salida
+        // Map to Dto output
         OrderDtoOutput orderDtoOutput = orderMapper.toOrderDto(orderEntity);
 
-        // Construir la respuesta
+        // Build the response
         ApiResponse<OrderDtoOutput> response = new ApiResponse<>(
                 "Order created successfully",
                 orderDtoOutput
@@ -84,7 +84,8 @@ public class OrderServiceImpl implements OrderService {
         orderEntity.setUserId(userId);
         orderEntity.setOrderStatus(OrderStatus.PENDING);
 
-        Set<OrderItemEntity> orderItems = newOrderDto.getOrderItems().stream()
+        Set<OrderItemEntity> orderItems = newOrderDto.getOrderItems()
+                .stream()
                 .map(item -> orderItemMapper.toOrderItemEntity(item, orderEntity))
                 .collect(Collectors.toSet());
         orderEntity.setOrderItems(orderItems);

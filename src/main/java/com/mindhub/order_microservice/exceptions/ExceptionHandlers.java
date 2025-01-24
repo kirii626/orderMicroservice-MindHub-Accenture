@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class ExceptionHandlers {
 
+    // Generates a basic error response structure with status, timestamp, and message
     private ResponseEntity<Map<String, Object>> buildErrorResponse(HttpStatus status, String message) {
         Map<String, Object> errorBody = new HashMap<>();
         errorBody.put("timestamp", LocalDateTime.now());
@@ -25,8 +26,24 @@ public class ExceptionHandlers {
         return new ResponseEntity<>(errorBody, status);
     }
 
+    // Extended version of the error response structure to include additional data
+    private ResponseEntity<Map<String, Object>> buildErrorResponse(HttpStatus status, String message, Map<String, Object> additionalData) {
+        Map<String, Object> errorBody = new HashMap<>();
+        errorBody.put("timestamp", LocalDateTime.now());
+        errorBody.put("status", status.value());
+        errorBody.put("error", status.getReasonPhrase());
+        errorBody.put("message", message);
+
+        // Add additional data if present
+        if (additionalData != null && !additionalData.isEmpty()) {
+            errorBody.put("data", additionalData);
+        }
+
+        return new ResponseEntity<>(errorBody, status);
+    }
+
     @ExceptionHandler(OrderNotFoundExc.class)
-    public ResponseEntity<Map<String, Object>> handleUserNotFoundException(OrderNotFoundExc ex) {
+    public ResponseEntity<Map<String, Object>> handleOrderNotFoundException(OrderNotFoundExc ex) {
         return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
@@ -37,6 +54,7 @@ public class ExceptionHandlers {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        // Extract validation errors from the exception and format them as a single message
         String errors = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
@@ -47,6 +65,7 @@ public class ExceptionHandlers {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Map<String, Object>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+        // Handle cases where the request body cannot be parsed
         return buildErrorResponse(HttpStatus.BAD_REQUEST, "Invalid request format. Please check the data you're sending.");
     }
 
@@ -56,7 +75,7 @@ public class ExceptionHandlers {
     }
 
     @ExceptionHandler(OrderAlreadyExistsExc.class)
-    public ResponseEntity<Map<String, Object>> handleUserAlreadyExistsException(OrderAlreadyExistsExc ex) {
+    public ResponseEntity<Map<String, Object>> handlOrderAlreadyExistsException(OrderAlreadyExistsExc ex) {
         return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage());
     }
 
@@ -75,27 +94,19 @@ public class ExceptionHandlers {
 
     @ExceptionHandler(InsufficientStockExc.class)
     public ResponseEntity<Map<String, Object>> handleInsufficientStockException(InsufficientStockExc ex) {
-        Map<String, Object> errorBody = new HashMap<>();
-        errorBody.put("timestamp", LocalDateTime.now());
-        errorBody.put("status", HttpStatus.CONFLICT.value());
-        errorBody.put("error", HttpStatus.CONFLICT.getReasonPhrase());
-        errorBody.put("message", ex.getMessage());
-
-        // Agregar información adicional al campo `data`
         Map<String, Object> additionalData = new HashMap<>();
         additionalData.put("productId", ex.getProductId());
         additionalData.put("requestedQuantity", ex.getRequestedQuantity());
-        errorBody.put("data", additionalData);
 
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorBody);
+        return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage(), additionalData);
     }
 
     @ExceptionHandler(HttpClientErrorException.class)
     public ResponseEntity<Map<String, Object>> handleHttpClientErrorException(HttpClientErrorException ex) {
+        // Handle errors when communicating with other services
         String responseBody = ex.getResponseBodyAsString();
-        System.out.println("Response body: " + responseBody); // Log para verificar el contenido
 
-        // Aquí asegúrate de que el cuerpo contiene "Product not found with ID" o "User not found for email"
+        // Check if the response contains specific error messages from other services
         if (responseBody.contains("Product not found with ID")) {
             String productId = extractProductIdFromMessage(responseBody);
             return buildErrorResponse(HttpStatus.NOT_FOUND, "The product with ID " + productId + " does not exist.");
@@ -122,7 +133,6 @@ public class ExceptionHandlers {
             endIndex = responseBody.length();
         }
 
-        // Extrae el ID y elimina comillas adicionales
         String extractedId = responseBody.substring(startIndex, endIndex).trim();
         return extractedId.replace("\"", "");
     }
@@ -140,6 +150,6 @@ public class ExceptionHandlers {
         }
 
         String extractedEmail = responseBody.substring(startIndex, endIndex).trim();
-        return extractedEmail.replace("\"", "");// Elimina comillas si están presentes
+        return extractedEmail.replace("\"", "");
     }
 }
