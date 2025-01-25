@@ -2,16 +2,14 @@ package com.mindhub.order_microservice.services.implementations;
 
 import com.mindhub.order_microservice.dtos.NewOrderDto;
 import com.mindhub.order_microservice.dtos.OrderItemDtoInput;
-import com.mindhub.order_microservice.exceptions.InsufficientStockExc;
 import com.mindhub.order_microservice.exceptions.OrderNotFoundExc;
 import com.mindhub.order_microservice.models.OrderEntity;
-import com.mindhub.order_microservice.dtos.OrderDtoInput;
 import com.mindhub.order_microservice.dtos.OrderDtoOutput;
 import com.mindhub.order_microservice.models.OrderItemEntity;
 import com.mindhub.order_microservice.models.enums.OrderStatus;
 import com.mindhub.order_microservice.services.OrderService;
-import com.mindhub.order_microservice.services.ProductServiceClient;
-import com.mindhub.order_microservice.services.UserServiceClient;
+import com.mindhub.order_microservice.utils.ProductServiceClient;
+import com.mindhub.order_microservice.utils.UserServiceClient;
 import com.mindhub.order_microservice.services.mappers.OrderItemMapper;
 import com.mindhub.order_microservice.services.mappers.OrderMapper;
 import com.mindhub.order_microservice.repositories.OrderRepository;
