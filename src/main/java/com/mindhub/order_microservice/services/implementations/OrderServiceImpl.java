@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
@@ -46,6 +47,7 @@ public class OrderServiceImpl implements OrderService {
     private ValidOrderFields validOrderFields;
 
     @Override
+    @Transactional
     public ResponseEntity<ApiResponse<OrderDtoOutput>> createOrder(NewOrderDto newOrderDto) {
         // Validate user exists
         Long userId = validOrderFields.validateUser(newOrderDto.getEmail());
@@ -71,12 +73,14 @@ public class OrderServiceImpl implements OrderService {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @Transactional
     public void reduceProductsStock(List<OrderItemDtoInput> orderItems) {
         for (OrderItemDtoInput item : orderItems) {
             productServiceClient.reduceStock(item.getProductId(), item.getQuantity());
         }
     }
 
+    @Transactional
     private OrderEntity createOrderEntity(Long userId, NewOrderDto newOrderDto) {
         OrderEntity orderEntity = new OrderEntity();
         orderEntity.setUserId(userId);
@@ -107,6 +111,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public ResponseEntity<ApiResponse<OrderDtoOutput>> updateOrderStatus(Long id, OrderStatus status) {
         OrderEntity orderEntity = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundExc("Order not found with ID: " + id));
