@@ -12,13 +12,13 @@ public class ProductServiceClient {
     private RestTemplate restTemplate;
 
     public boolean validateStock(Long productId, Integer quantity) {
-        String url = "http://localhost:8082/products/" + productId + "/validate-stock?quantity=" + quantity;
+        String url = "http://product-microservice/products/" + productId + "/validate-stock?quantity=" + quantity;
         ResponseEntity<Boolean> response = restTemplate.getForEntity(url, Boolean.class);
         return response.getBody() != null && response.getBody();
     }
 
     public void reduceStock(Long productId, Integer quantity) {
-        String url = "http://localhost:8082/products/" + productId + "/reduce-stock";
+        String url = "http://product-microservice/products/" + productId + "/reduce-stock";
         restTemplate.postForEntity(url, quantity, Void.class);
     }
 
