@@ -1,9 +1,11 @@
 package com.mindhub.order_microservice.services.mappers;
 
+import com.mindhub.order_microservice.dtos.OrderItemDtoOutput;
 import com.mindhub.order_microservice.models.OrderEntity;
 import com.mindhub.order_microservice.models.OrderItemEntity;
 import com.mindhub.order_microservice.dtos.OrderDtoInput;
 import com.mindhub.order_microservice.dtos.OrderDtoOutput;
+import com.mindhub.order_microservice.utils.ProductServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,15 +19,28 @@ public class OrderMapper {
     @Autowired
     private OrderItemMapper orderItemMapper;
 
+    @Autowired
+    private ProductServiceClient productServiceClient;
+
     public OrderDtoOutput toOrderDto(OrderEntity orderEntity) {
+
+        List<OrderItemDtoOutput> orderItems = orderEntity.getOrderItems()
+                .stream()
+                .map(item -> {
+                    Double price = productServiceClient.getProductPrice(item.getProductId());
+                    String name = productServiceClient.getProductName(item.getProductId());
+                    return orderItemMapper.toOrderItemDto(item, price, name);
+                })
+                .collect(Collectors.toList());
+
+        double total = orderItems.stream().mapToDouble(OrderItemDtoOutput::getSubtotal).sum();
+
         return new OrderDtoOutput(
                 orderEntity.getId(),
                 orderEntity.getUserId(),
                 orderEntity.getOrderStatus(),
-                orderEntity.getOrderItems()
-                        .stream()
-                        .map(orderItemMapper::toOrderItemDto)
-                        .collect(Collectors.toList())
+                orderItems,
+                total
         );
     }
 

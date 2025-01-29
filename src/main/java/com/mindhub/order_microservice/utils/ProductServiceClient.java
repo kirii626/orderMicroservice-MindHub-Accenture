@@ -22,4 +22,16 @@ public class ProductServiceClient {
         restTemplate.postForEntity(url, quantity, Void.class);
     }
 
+    public Double getProductPrice(Long productId) {
+        String url = "http://product-microservice/products/" + productId + "/price";
+        ResponseEntity<Double> response = restTemplate.getForEntity(url, Double.class);
+        return response.getBody();
+    }
+
+    public String getProductName(Long productId) {
+        String url = "http://product-microservice/products/" + productId + "/name";
+        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+        return response.getBody();
+    }
+
 }

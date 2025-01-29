@@ -14,11 +14,14 @@ public class OrderDtoOutput {
 
     private List<OrderItemDtoOutput> orderItems;
 
-    public OrderDtoOutput(Long id, Long userId, OrderStatus orderStatus, List<OrderItemDtoOutput> orderItems) {
+    private Double total;
+
+    public OrderDtoOutput(Long id, Long userId, OrderStatus orderStatus, List<OrderItemDtoOutput> orderItems, Double total) {
         this.id = id;
         this.userId = userId;
         this.orderStatus = orderStatus;
         this.orderItems = orderItems;
+        this.total = total;
     }
 
     public Long getId() {
@@ -35,5 +38,9 @@ public class OrderDtoOutput {
 
     public List<OrderItemDtoOutput> getOrderItems() {
         return orderItems;
+    }
+
+    public Double getTotal() {
+        return total;
     }
 }
