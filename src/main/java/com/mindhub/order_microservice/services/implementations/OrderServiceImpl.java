@@ -7,6 +7,7 @@ import com.mindhub.order_microservice.models.OrderEntity;
 import com.mindhub.order_microservice.dtos.OrderDtoOutput;
 import com.mindhub.order_microservice.models.OrderItemEntity;
 import com.mindhub.order_microservice.models.enums.OrderStatus;
+import com.mindhub.order_microservice.publishers.OrderEventPublisher;
 import com.mindhub.order_microservice.services.OrderService;
 import com.mindhub.order_microservice.utils.ProductServiceClient;
 import com.mindhub.order_microservice.utils.UserServiceClient;
@@ -27,6 +28,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl implements OrderService {
+
+    @Autowired
+    private OrderEventPublisher orderEventPublisher;
 
     @Autowired
     private OrderMapper orderMapper;
@@ -63,6 +67,8 @@ public class OrderServiceImpl implements OrderService {
 
         // Map to Dto output
         OrderDtoOutput orderDtoOutput = orderMapper.toOrderDto(orderEntity);
+
+        orderEventPublisher.sendOrderCreatedEvent(orderDtoOutput);
 
         // Build the response
         ApiResponse<OrderDtoOutput> response = new ApiResponse<>(
