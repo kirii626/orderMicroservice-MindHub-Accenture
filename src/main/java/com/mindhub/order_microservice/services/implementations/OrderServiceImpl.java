@@ -8,6 +8,7 @@ import com.mindhub.order_microservice.dtos.OrderDtoOutput;
 import com.mindhub.order_microservice.models.OrderItemEntity;
 import com.mindhub.order_microservice.models.enums.OrderStatus;
 import com.mindhub.order_microservice.publishers.OrderEventPublisher;
+import com.mindhub.order_microservice.publishers.StockEventPublisher;
 import com.mindhub.order_microservice.services.OrderService;
 import com.mindhub.order_microservice.utils.ProductServiceClient;
 import com.mindhub.order_microservice.utils.UserServiceClient;
@@ -50,6 +51,9 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private ValidOrderFields validOrderFields;
 
+    @Autowired
+    private StockEventPublisher stockEventPublisher;
+
     @Override
     @Transactional
     public ResponseEntity<ApiResponse<OrderDtoOutput>> createOrder(NewOrderDto newOrderDto) {
@@ -63,7 +67,7 @@ public class OrderServiceImpl implements OrderService {
         OrderEntity orderEntity = createOrderEntity(userId, newOrderDto);
 
         // Reduce stock products
-        reduceProductsStock(newOrderDto.getOrderItems());
+        stockEventPublisher.sendReduceStockEvent(newOrderDto.getOrderItems(), orderEntity.getId());
 
         // Map to Dto output
         OrderDtoOutput orderDtoOutput = orderMapper.toOrderDto(orderEntity);
@@ -77,13 +81,6 @@ public class OrderServiceImpl implements OrderService {
         );
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
-    @Transactional
-    public void reduceProductsStock(List<OrderItemDtoInput> orderItems) {
-        for (OrderItemDtoInput item : orderItems) {
-            productServiceClient.reduceStock(item.getProductId(), item.getQuantity());
-        }
     }
 
     @Transactional

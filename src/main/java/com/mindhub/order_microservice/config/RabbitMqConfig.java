@@ -14,30 +14,50 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMqConfig {
 
-    // Exchange for publish events
     @Value("${rabbitmq.exchange}")
-    private String exchange;
+    private String stockExchange;
 
-    // Registered user's event routing key
-    @Value("${rabbitmq.routingkey.order}")
-    private String orderRegisteredRoutingKey;
+    @Value("${rabbitmq.queue.stock.reduce}")
+    private String stockReduceQueue;
 
-    @Value("${rabbitmq.queue.order}")
-    private String orderQueue;
+    @Value("${rabbitmq.queue.stock.success}")
+    private String stockSuccessQueue;
+
+    @Value("${rabbitmq.queue.stock.failure}")
+    private String stockFailureQueue;
+
+    @Value("${rabbitmq.routing.stock.reduce}")
+    private String stockReduceRoutingKey;
+
+    @Value("${rabbitmq.routing.stock.success}")
+    private String stockSuccessRoutingKey;
+
+    @Value("${rabbitmq.routing.stock.failure}")
+    private String stockFailureRoutingKey;
 
     @Bean
-    public TopicExchange orderExchange() {
-        return new TopicExchange(exchange);
+    public TopicExchange topicExchange() {
+        return new TopicExchange(stockExchange);
     }
 
     @Bean
-    public Queue orderQueue() {
-        return new Queue(orderQueue);
+    public Queue stockSuccessQueue() {
+        return new Queue(stockSuccessQueue, true);
     }
 
     @Bean
-    public Binding orderBinding(Queue orderQueue, TopicExchange orderExchange) {
-        return BindingBuilder.bind(orderQueue).to(orderExchange).with(orderRegisteredRoutingKey);
+    public Queue stockFailureQueue() {
+        return new Queue(stockFailureQueue, true);
+    }
+
+    @Bean
+    public Binding bindingStockSuccess(Queue stockSuccessQueue, TopicExchange stockExchange) {
+        return BindingBuilder.bind(stockSuccessQueue).to(stockExchange).with(stockSuccessRoutingKey);
+    }
+
+    @Bean
+    public Binding bindingStockFailure(Queue stockFailureQueue, TopicExchange stockExchange) {
+        return BindingBuilder.bind(stockFailureQueue).to(stockExchange).with(stockFailureRoutingKey);
     }
 
     @Bean
