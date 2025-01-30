@@ -13,22 +13,22 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/orders")
-public class OrderController {
+@RequestMapping("/api/order-admin")
+public class AdminController {
 
     @Autowired
     private OrderService orderService;
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<OrderDtoOutput>>> getAllOrders() {
+        return orderService.getAllOrders();
+    }
 
     @PostMapping
     public ResponseEntity<ApiResponse<OrderDtoOutput>> createOrder(
             @Valid
             @RequestBody NewOrderDto newOrderDto) {
         return orderService.createOrder(newOrderDto);
-    }
-
-    @GetMapping
-    public ResponseEntity<ApiResponse<List<OrderDtoOutput>>> getAllOrders() {
-        return orderService.getAllOrders();
     }
 
     @PutMapping("/update-status/{id}")

@@ -12,7 +12,7 @@ public class UserServiceClient {
     private RestTemplate restTemplate;
 
     public Long getUserIdByEmail(String email) {
-        String url = "http://user-microservice/users/by-email?email=" + email;
+        String url = "http://user-microservice/internal/user/by-email?email=" + email;
         ResponseEntity<Long> response = restTemplate.getForEntity(url, Long.class);
         if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
             throw new RuntimeException("Failed to retrieve user ID for email: " + email);
